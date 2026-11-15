@@ -78,6 +78,34 @@ export function render(ctx, world) {
 
   ctx.restore(); // restore camera transform
 
+  // Subtle Vignette
+  const vig = ctx.createRadialGradient(width / 2, height / 2, Math.min(width, height) * 0.4, width / 2, height / 2, Math.max(width, height) * 0.75);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, 'rgba(0, 0, 0, 0.65)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, width, height);
+
+  // Low health red edge pulse
+  if (world.lives === 1) {
+    const pulseAlpha = (Math.sin(performance.now() * 0.01) + 1) * 0.2 + 0.1;
+    ctx.strokeStyle = `rgba(255, 0, 60, ${pulseAlpha})`;
+    ctx.lineWidth = 6;
+    ctx.strokeRect(3, 3, width - 6, height - 6);
+  }
+
+  // Level-up banner text if active
+  if (world.levelBannerTimer > 0) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 36px system-ui, sans-serif';
+    ctx.fillStyle = CONFIG.COLOR_GOLD;
+    ctx.shadowColor = CONFIG.COLOR_GOLD;
+    ctx.shadowBlur = 15;
+    ctx.globalAlpha = Math.min(1, world.levelBannerTimer);
+    ctx.fillText(`LEVEL ${world.level} — PREPARE`, width / 2, height / 2 - 120);
+    ctx.restore();
+  }
+
   // Draw HUD overlay
   drawHUD(ctx, world, width, height);
 

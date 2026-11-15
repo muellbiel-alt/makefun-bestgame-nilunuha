@@ -61,16 +61,16 @@ export class World {
       });
     }
 
-    // Spawn void mines
+    // Spawn void mines (slightly more balanced speed scaling)
     const mineCount = 6 + this.level * 4;
     for (let i = 0; i < mineCount; i++) {
       this.mines.push({
         x: randomRange(300, CONFIG.WORLD_WIDTH - 300),
         y: randomRange(300, CONFIG.WORLD_HEIGHT - 300),
-        vx: randomRange(-40, 40) * (1 + this.level * 0.15),
-        vy: randomRange(-40, 40) * (1 + this.level * 0.15),
+        vx: randomRange(-35, 35) * (0.8 + this.level * 0.12),
+        vy: randomRange(-35, 35) * (0.8 + this.level * 0.12),
         radius: CONFIG.MINE_RADIUS,
-        chaser: random() < 0.4,
+        chaser: random() < (this.level === 1 ? 0.25 : 0.4),
       });
     }
 
@@ -108,6 +108,10 @@ export class World {
   }
 
   update(dt, inputState, autopilotFn = null) {
+    if (this.levelBannerTimer > 0) {
+      this.levelBannerTimer -= dt;
+    }
+
     if (this.state === 'PAUSE') {
       if (inputState.keyPressed['KeyP'] || inputState.keyPressed['Escape']) {
         this.state = 'PLAY';
@@ -308,13 +312,15 @@ export class World {
       if (Math.hypot(this.drone.x - this.beacon.x, this.drone.y - this.beacon.y) < CONFIG.BEACON_RADIUS + CONFIG.DRONE_RADIUS) {
         this.deliveries++;
         this.score += 500 * this.combo;
+        this.energy = Math.min(CONFIG.ENERGY_MAX, this.energy + 40); // Energy reward on delivery
         playLevelUp();
         this.addParticles(this.beacon.x, this.beacon.y, CONFIG.COLOR_GREEN, 40, 250);
-        this.addFloatingText(this.beacon.x, this.beacon.y, 'DELIVERY COMPLETE!', CONFIG.COLOR_GREEN);
+        this.addFloatingText(this.beacon.x, this.beacon.y, 'DELIVERY COMPLETE! +ENERGY', CONFIG.COLOR_GREEN);
 
         if (this.deliveries >= CONFIG.DELIVERIES_PER_LEVEL) {
           this.deliveries = 0;
           this.level++;
+          this.levelBannerTimer = 2.5;
           if (this.level > CONFIG.MAX_LEVEL) {
             this.state = 'WIN';
             playWin();

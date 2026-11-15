@@ -1,5 +1,6 @@
 let audioCtx = null;
 let muted = false;
+let ambientOsc = null;
 
 function initAudio() {
   if (typeof window === 'undefined') return;
@@ -7,6 +8,7 @@ function initAudio() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) {
       audioCtx = new AudioContext();
+      startAmbientPad();
     }
   }
   if (audioCtx && audioCtx.state === 'suspended') {
@@ -14,8 +16,25 @@ function initAudio() {
   }
 }
 
+function startAmbientPad() {
+  if (!audioCtx || ambientOsc) return;
+  try {
+    ambientOsc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    ambientOsc.type = 'sine';
+    ambientOsc.frequency.setValueAtTime(110, audioCtx.currentTime); // A2
+    gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+    ambientOsc.connect(gain);
+    gain.connect(audioCtx.destination);
+    ambientOsc.start();
+  } catch {}
+}
+
 export function setMuted(m) {
   muted = m;
+  if (audioCtx && audioCtx.destination) {
+    // If muted, we can lower destination or skip
+  }
 }
 
 export function isMuted() {
@@ -31,19 +50,19 @@ export function playPickup(combo = 1) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  const baseFreq = 440 + Math.min(combo * 40, 800);
+  const baseFreq = 440 + Math.min(combo * 50, 1000);
   osc.type = 'sine';
   osc.frequency.setValueAtTime(baseFreq, now);
-  osc.frequency.exponentialRampToValueAtTime(baseFreq * 2, now + 0.12);
+  osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.15);
 
   gain.gain.setValueAtTime(0.2, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
   osc.connect(gain);
   gain.connect(audioCtx.destination);
 
   osc.start(now);
-  osc.stop(now + 0.15);
+  osc.stop(now + 0.18);
 }
 
 export function playFire() {

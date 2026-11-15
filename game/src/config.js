@@ -1,0 +1,35 @@
+export const CONFIG = {
+  LOGICAL_WIDTH: 1280,
+  LOGICAL_HEIGHT: 720,
+  WORLD_WIDTH: 3840,
+  WORLD_HEIGHT: 2160,
+  MAX_LIVES: 3,
+  DELIVERIES_PER_LEVEL: 3,
+  MAX_LEVEL: 5,
+  
+  // Drone stats
+  DRONE_THRUST: 450,
+  DRONE_DAMPING: 0.96,
+  DRONE_MAX_SPEED: 520,
+  DRONE_RADIUS: 18,
+  
+  // Energy stats
+  ENERGY_MAX: 100,
+  ENERGY_RECHARGE_RATE: 22, // per second
+  ENERGY_COST_BOLT: 25,
+  
+  // Shard & Beacon stats
+  SHARD_RADIUS: 14,
+  BEACON_RADIUS: 45,
+  
+  // Mine stats
+  MINE_RADIUS: 16,
+  
+  // Colors
+  COLOR_BG: '#020208',
+  COLOR_PRIMARY: '#00f0ff',
+  COLOR_ACCENT: '#ff007b',
+  COLOR_GOLD: '#ffd700',
+  COLOR_GREEN: '#00ff88',
+  COLOR_DIM: '#2a2a40',
+};

@@ -2,6 +2,7 @@ let audioCtx = null;
 let muted = false;
 
 function initAudio() {
+  if (typeof window === 'undefined') return;
   if (!audioCtx) {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (AudioContext) {

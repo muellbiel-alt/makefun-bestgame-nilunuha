@@ -34,8 +34,36 @@ function countFiles(dir) {
   return count;
 }
 
+const screenshotsDir = join(out, 'screenshots');
+if (existsSync(screenshotsDir)) {
+  const shotFiles = readdirNames(screenshotsDir); // wait, let's use readdirSync directly
+}
+
+function readdirNames(dir) {
+  try {
+    return readdirSync(dir);
+  } catch {
+    return [];
+  }
+}
+
+const shotFiles = readdirNames(screenshotsDir);
+if (shotFiles.length < 3 || shotFiles.length > 4) {
+  console.error(`Error: screenshots/ must hold 3 or 4 files, found ${shotFiles.length}`);
+  process.exit(1);
+}
+
+for (const file of shotFiles) {
+  const filePath = join(screenshotsDir, file);
+  const size = statSync(filePath).size;
+  if (size > 262144) {
+    console.error(`Error: Screenshot ${file} is ${size} bytes (exceeds max 262144 bytes)`);
+    process.exit(1);
+  }
+}
+
 const gameFileCount = countFiles(join(out, 'game'));
-const shotFileCount = existsSync(join(out, 'screenshots')) ? countFiles(join(out, 'screenshots')) : 0;
+const shotFileCount = existsSync(screenshotsDir) ? countFiles(screenshotsDir) : 0;
 
 const dossierContent = buildDossier(out, {
   text_max_bytes: 163840,
